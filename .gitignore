@@ -42,4 +42,4 @@ bin/
 .DS_Store
 
 # Project
-!SampleJar/build/libs/*
+!/SampleJar/build/libs/

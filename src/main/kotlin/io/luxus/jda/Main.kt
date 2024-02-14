@@ -32,16 +32,28 @@ fun findDependencies(
     classPath: String,
     methodName: String
 ): List<ClassMethodDependency> {
+    // read jar, class node files
     val jarFiles = File(path).allFiles.filter { it.extension in setOf("jar", "war") }
     val classNodes = jarFiles.flatMap { it.readJar() }
+
+    // convert class nodes to class methods
     val classMethods: List<ClassMethod> = classNodes.toClassMethods()
     val classMethodMap: Map<Triple<String, String, String>, ClassMethod> =
         classMethods.associateBy { Triple(it.classNode.name, it.methodNode.name, it.methodNode.desc) }
+
+    // get class's children map
     val childrenMap: Map<String, List<String>> = getChildrenMap(classNodes)
+
+    // get 1-level method call map
+    // this adds all the children class method calls using childrenMap
     val callMap = getCallMap(classMethods, classMethodMap, childrenMap) { it.startsWith(packagePrefix) }
+
+    // get 1 level method dependency map by reversing callMap
     val dependencyMap = getDependenciesMap(callMap)
 
+    // find the start point of the dependency graph
     val methods = classMethods.filter { it.classPath == classPath && it.methodName.startsWith(methodName) }
+    // find dependency graph recursively using dependencyMap
     val dependencies = methods.map { findDependencyGraph(it, dependencyMap) }
     return dependencies
 }
@@ -85,6 +97,11 @@ fun List<ClassNode>.toClassMethods(): List<ClassMethod> =
         }
     }
 
+/**
+ * returns class's children map
+ * key: parent class, interface name
+ * value: list of children class
+ */
 fun getChildrenMap(classNodes: List<ClassNode>): Map<String, List<String>> {
     val childrenMap = mutableMapOf<String, MutableList<String>>()
 
@@ -100,6 +117,9 @@ fun getChildrenMap(classNodes: List<ClassNode>): Map<String, List<String>> {
     return childrenMap.mapValues { it.value.toList() }
 }
 
+/**
+ * find method calls
+ */
 fun getCallMap(
     classMethods: List<ClassMethod>,
     classMethodMap: Map<Triple<String, String, String>, ClassMethod>,
@@ -111,11 +131,14 @@ fun getCallMap(
         val classMethod = classMethodMap[Triple(owner, name, desc)]
         if (classMethod == null) {
             println("Not found: $owner, $name, $desc")
-            return // not found
+            return
         }
 
+        // add the method call
         calls.add(classMethod)
 
+        // if the owner is a class, it adds all the children's method calls
+        // if the owner is an interface, it also adds all the children's method calls
         childrenMap[classMethod.classPath]?.let { children ->
             calls.addAll(children.mapNotNull {
                 classMethodMap[Triple(
@@ -128,10 +151,15 @@ fun getCallMap(
     }
 
     classMethod.methodNode.instructions.forEach { instruction ->
+        // if instruction is invokeDynamic, it adds the method call
+        // invokeDynamic is used for lambda
         if (instruction is InvokeDynamicInsnNode) { // invokeDynamic (=Lambda)
             val methodHandle = instruction.bsmArgs[1] as Handle
             addCalls(methodHandle.owner, methodHandle.name, methodHandle.desc)
-        } else if (instruction is MethodInsnNode) { // methodInsn (=just call)
+        }
+        // if instruction is methodInsn, it adds the method call
+        // methodInsn is used for just calling a method directly
+        else if (instruction is MethodInsnNode) { // methodInsn (=just call)
             if (packageFilter(instruction.owner)) {
                 addCalls(instruction.owner, instruction.name, instruction.desc)
             }
@@ -141,6 +169,10 @@ fun getCallMap(
     calls.toList()
 }
 
+/**
+ * returns method 1-level dependency map
+ * it just reverses the callMap
+ */
 fun getDependenciesMap(
     callMap: Map<ClassMethod, List<ClassMethod>>
 ): Map<ClassMethod, List<ClassMethod>> {
@@ -155,6 +187,9 @@ fun getDependenciesMap(
     return dependencyMap.mapValues { it.value.toList() }
 }
 
+/**
+ * find dependency graph recursively
+ */
 fun findDependencyGraph(
     classMethod: ClassMethod,
     dependencyMap: Map<ClassMethod, List<ClassMethod>>
