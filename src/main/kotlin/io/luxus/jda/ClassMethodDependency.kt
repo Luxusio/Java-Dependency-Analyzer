@@ -1,4 +1,4 @@
-package io.luxuis.jda
+package io.luxus.jda
 
 class ClassMethodDependency(
     val classMethod: ClassMethod,
@@ -19,6 +19,6 @@ class ClassMethodDependency(
         additional: ClassMethodDependency.() -> String = { "" }
     ) {
         print("$indent->${classMethod.className}#${classMethod.simpleMethodName}${additional(this)}")
-        calledBy.forEach { it.print(print, indent, additional) }
+        calledBy.forEach { it.print(print, "$indent    ", additional) }
     }
 }

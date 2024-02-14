@@ -1,4 +1,4 @@
-package io.luxuis.jda
+package io.luxus.jda
 
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
@@ -22,8 +22,8 @@ class ClassMethod(
 
             return methodName.substring(0, index) + "(" +
                     methodName.substring(index + 1, methodName.length - 1)
-                        .split(", ")
-                        .joinToString(", ") { it.substringAfterLast(".") } + ")"
+                        .split(",")
+                        .joinToString(",") { it.substringAfterLast(".") } + ")"
         }
 
     override fun toString(): String = "ClassMethod($classPath, $methodName)"

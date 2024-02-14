@@ -1,4 +1,4 @@
-package io.luxuis.jda
+package io.luxus.jda
 
 import java.io.File
 
