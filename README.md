@@ -8,10 +8,8 @@ This project is made for learning how java bytecode works.
 
 If you want to print method-level dependency, I recommend to use IDE features.
 
-- [IntelliJ IDEA Call Hierarchy](https://www.jetbrains.com/help/idea/viewing-structure-and-hierarchy-of-the-source-code.html) (
-  Ctrl + Alt + H)
-- [Eclipse Call Hierarchy](https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Freference%2Fviews%2Fref-call-hierarchy.htm) (
-  Ctrl + Alt + H)
+- [IntelliJ IDEA Call Hierarchy](https://www.jetbrains.com/help/idea/viewing-structure-and-hierarchy-of-the-source-code.html) (Ctrl + Alt + H)
+- [Eclipse Call Hierarchy](https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Freference%2Fviews%2Fref-call-hierarchy.htm) (Ctrl + Alt + H)
 
 ## How to use
 
