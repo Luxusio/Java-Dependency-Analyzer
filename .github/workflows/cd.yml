@@ -23,10 +23,10 @@ jobs:
         run: ./gradlew SampleJar:jar test
 
       - name: Build
-        run: ./gradlew jar
+        run: ./gradlew shadowJar
 
       - name: Rename file
-        run: mv ./build/libs/Java-Dependency-Analyzer-1.0-SNAPSHOT.jar ./build/libs/jda.jar
+        run: mv ./build/libs/Java-Dependency-Analyzer-1.0-SNAPSHOT-all.jar ./build/libs/jda.jar
 
       - name: Release
         uses: softprops/action-gh-release@v1
